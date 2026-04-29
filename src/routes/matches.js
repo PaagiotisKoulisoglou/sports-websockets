@@ -13,7 +13,7 @@ matchRouter.get('/', async (req, res) => {
     const parsed = listMatchesQuerySchema.safeParse(req.query);
 
     if(!parsed.success) {
-        return res.status(400).json({error: "Invalid query.", details: JSON.stringify(parsed.error)})
+        return res.status(400).json({error: "Invalid query.", details: parsed.error.issues})
     }
     const limit = Math.min(parsed.data.limit ?? 50, MAX_LIMIT);
     
@@ -33,16 +33,14 @@ matchRouter.get('/', async (req, res) => {
 matchRouter.post('/', async (req, res) => {
     const parsed = createMatchSchema.safeParse(req.body);
 
-    // 1. Check for validation failure BEFORE destructuring data
     if (!parsed.success) {
         return res.status(400).json({
             error: 'Validation failed',
-            details: parsed.error.format()
+            details: parsed.error.issues
         });
     }
 
-    // 2. Safely destructure from parsed.data
-    const { startTime, endTime, homeScore, awayScore } = parsed.data;
+    const {data: {startTime, endTime, homeScore, awayScore} } = parsed;
 
     try {
         const [event] = await db.insert(matches).values({

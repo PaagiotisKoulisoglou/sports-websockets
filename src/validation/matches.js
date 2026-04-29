@@ -18,20 +18,7 @@ export const matchIdParamSchema = z.object({
 })
 
 // Helpers
-const isIsoDateString = (value) => {
-  if (typeof value !== 'string') return false
-  const time = Date.parse(value)
-  if (Number.isNaN(time)) return false
-  try {
-    // Ensure it round-trips to a valid ISO string
-    // Some engines will coerce many formats; we require that parsing succeeds
-    // and toISOString does not throw
-    new Date(value).toISOString()
-    return true
-  } catch {
-    return false
-  }
-}
+const isIsoDateString = (value) => z.iso.datetime();
 
 // Create match validation
 export const createMatchSchema = z
